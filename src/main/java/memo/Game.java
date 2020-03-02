@@ -67,15 +67,18 @@ public class Game {
         return matchedPairs;
     }
 
-    public void selectBoardElement(Player player, BoardElementPosition boardElementPosition) throws Exception {
+    public int selectBoardElement(Player player, BoardElementPosition boardElementPosition) throws Exception {
         this.throwExceptionWhenPositionIsIncorrect(boardElementPosition);
         this.throwExceptionWhenPlayerTurnIsWrong(player);
         if (!lastSelectedBoardElement.isPresent()) {
             this.selectFirstBoardElement(boardElementPosition);
-            return;
+            return 0;
         }
 
-        this.selectSecondBoardElement(boardElementPosition);
+        if (this.selectSecondBoardElement(boardElementPosition)) {
+            return 2;
+        }
+        return 1;
     }
 
     private void selectFirstBoardElement(BoardElementPosition boardElementPosition) {
@@ -83,11 +86,12 @@ public class Game {
         lastSelectedBoardElement = Optional.of(boardElementPosition);
     }
 
-    private void selectSecondBoardElement(BoardElementPosition boardElementPosition) {
+    private boolean selectSecondBoardElement(BoardElementPosition boardElementPosition) {
         BoardElement first = this.board.getBoardElement(lastSelectedBoardElement.get());
         BoardElement second = this.board.getBoardElement(boardElementPosition);
 
         int playerIndex = players.indexOf(activePlayer);
+        boolean isPair = false;
         if (isPair(first, second)) {
             this.board.setElementStatus(lastSelectedBoardElement.get(), BordElementStatus.SHOWED);
             this.board.setElementStatus(boardElementPosition, BordElementStatus.SHOWED);
@@ -100,6 +104,7 @@ public class Game {
                 this.status = GameStatus.COMPLETED;
                 this.winner = Optional.of(activePlayer);
             }
+            isPair = true;
         } else {
             this.board.setElementStatus(lastSelectedBoardElement.get(), BordElementStatus.HIDE);
             playerIndex++;
@@ -109,6 +114,7 @@ public class Game {
             activePlayer = players.get(playerIndex);
         }
         lastSelectedBoardElement = Optional.empty();
+        return isPair;
     }
 
     private boolean isPair(BoardElement first, BoardElement second) {

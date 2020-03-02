@@ -74,7 +74,7 @@ public class GameMaster {
         return player;
     }
 
-    ComputerPlayer getComputerPlayer() {
+    public ComputerPlayer getComputerPlayer() {
         return computerPlayer;
     }
 
